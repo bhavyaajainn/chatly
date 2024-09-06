@@ -1,24 +1,22 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import HomePage from "./pages/HomePage";
+import Chat from "./pages/Chat";
+import ErrorBoundary from "./components/ErrorBoundary"; // Ensure this is created
+import { auth, db } from "./config/firebaseConfig";
+import { doc, updateDoc } from "firebase/firestore";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <ErrorBoundary>
+        <Router>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/chat" element={<Chat />} />
+          </Routes>
+        </Router>
+      </ErrorBoundary>
     </div>
   );
 }
