@@ -1,51 +1,31 @@
-<<<<<<< HEAD
-# chatly
-Welcome to Chatly, your go-to chat application for seamless communication. Connect with friends, share updates, and stay in touch with those who matter most. Discover a range of features designed to make chatting effortless and fun. Get started now!
-=======
-# Getting Started with Create React App
+Chatly
+Chatly is a modern, feature-rich chat application built with React, TypeScript, Firebase, and Material-UI. It offers seamless user interactions, secure authentication, and a smooth user experience for messaging and connecting with friends.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Features
+1. User Authentication
+Login/Signup: Users can create an account or log in using their email and password.
+Email Verification: After signing up, users must verify their email before accessing the chat functionality. A notification is shown, and users are redirected after verification.
+Logout: Users can securely log out of their account at any time.
 
-## Available Scripts
+3. User Profile Management
+Add/Update Profile Picture: Users can upload or update their profile picture.
+View Full Image: Users can click to view a full version of any profile picture.
 
-In the project directory, you can run:
+5. Friendship Requests
+Send Friend Requests: Users can send friend requests by entering the username of the person they want to connect with.
+Cancel Requests: Users can cancel friend requests that have been sent but not yet accepted.
+Check Requests:
+Received Requests: View all incoming friend requests.
+Sent Requests: View all outgoing friend requests.
 
-### `npm start`
+7. Messaging
+Chat with Friends: Users can message friends in real-time.
+Send GIFs: Users can send fun GIFs in their conversations.
+Remove Friends: Users can unfriend someone, removing them from their friends list.
+Delete Conversations: Entire conversations with a friend can be deleted, clearing chat history.
+Tech Stack
+Frontend: React, TypeScript, Material-UI
+Backend: Firebase Authentication, Firestore Database
+Deployment: Progressive Web App (PWA) support for mobile and desktop
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
->>>>>>> master
+Give app a try- https://chatly-1c9a0.web.app/
