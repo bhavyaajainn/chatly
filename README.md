@@ -1,4 +1,5 @@
 Chatly
+
 Chatly is a modern, feature-rich chat application built with React, TypeScript, Firebase, and Material-UI. It offers seamless user interactions, secure authentication, and a smooth user experience for messaging and connecting with friends.
 
 Features
