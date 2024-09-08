@@ -6,7 +6,7 @@ Chat app-
 - Profile image/ Avatar
 -- Upload Image
 -- Logout
--- Unique user ID
+-- Unique username
 
 Tabs
 - Chat
@@ -20,7 +20,3 @@ Messaging
 -- Text
 -- giphy
 
-Notes
--use protected routes
-
-Notifications let see
