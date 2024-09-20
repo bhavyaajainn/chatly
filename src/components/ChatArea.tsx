@@ -4,11 +4,8 @@ import {
   Box,
   Typography,
   CircularProgress,
-  Dialog,
   TextField,
   Grid,
-  DialogTitle,
-  DialogContent,
   InputAdornment,
   useMediaQuery,
   Theme,
@@ -30,7 +27,7 @@ import {
   onSnapshot,
   query,
   orderBy,
-  Timestamp, // Ensure Timestamp is imported
+  Timestamp,
 } from "firebase/firestore";
 import { useSelector } from "react-redux";
 import { RootState } from "../reduxStore";
@@ -38,7 +35,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import FilePreview from "./FilePreview";
 import useSound from "use-sound";
 import axios from "axios";
-import Picker from "@emoji-mart/react"; // Import emoji-mart picker
+import Picker from "@emoji-mart/react";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import theme from "../styles/theme";
 import { ChatAreaProps, Message } from "./types";
@@ -69,14 +66,13 @@ const ChatArea: React.FC<ChatAreaProps> = ({ onBackClick }) => {
     theme.breakpoints.down("sm")
   );
 
-  
   const handleEmojiSelect = (emoji: any) => {
     setMessage((prevMessage) => prevMessage + emoji.native);
     setShowEmojiPicker(false);
   };
 
   const handleGifIconClick = () => {
-    setShowGifSearch(true);
+    setShowGifSearch((prev) => !prev);
     if (searchTerm.trim()) {
       handleGifSearch();
     }
@@ -107,13 +103,13 @@ const ChatArea: React.FC<ChatAreaProps> = ({ onBackClick }) => {
       );
       setGifResults(urls);
     } catch (error) {
-      console.error("");
+      console.error("Error fetching GIFs:", error);
     }
   };
 
   const handleGifSelect = async (gifUrl: string) => {
     if (!currentUserId || !mostRecentFriend) {
-      console.error("");
+      console.error("Error: No current user or recent friend found.");
       return;
     }
 
@@ -147,7 +143,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ onBackClick }) => {
 
       playSend();
     } catch (error) {
-      console.error("");
+      console.error("Error sending GIF message:", error);
     } finally {
       setIsSending(false);
       setShowGifSearch(false);
@@ -206,7 +202,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ onBackClick }) => {
         if (file.type.startsWith("image/")) {
           imageUrls.push(url);
         } else {
-          fileData.push({ name: file.name, url });
+          fileData.push({ name: file.name, url }); // Add file name and URL for non-image files
         }
       })
     );
@@ -214,13 +210,11 @@ const ChatArea: React.FC<ChatAreaProps> = ({ onBackClick }) => {
     return { imageUrls, files: fileData };
   };
 
-  
-
   const handleSend = async () => {
     if (message.trim() === "" && files.length === 0) return;
 
     if (!currentUserId || !mostRecentFriend) {
-      console.error("");
+      console.error("Error: No current user or recent friend found.");
       return;
     }
 
@@ -267,12 +261,14 @@ const ChatArea: React.FC<ChatAreaProps> = ({ onBackClick }) => {
 
       playSend();
     } catch (error) {
-      console.error("");
+      console.error("Error sending message:", error);
     } finally {
       setIsSending(false);
     }
   };
+
   const lastPlayedMessageTimestampRef = useRef<number | null>(null);
+
   useEffect(() => {
     if (mostRecentFriend && currentUserId) {
       const db = getFirestore();
@@ -332,7 +328,7 @@ const ChatArea: React.FC<ChatAreaProps> = ({ onBackClick }) => {
       display="flex"
       flexDirection="column"
       justifyContent="space-between"
-      sx={{ height: "100vh" }} // Ensure the container takes the full viewport height
+      sx={{ height: "100vh" }}
     >
       {isMobile && (
         <Box display="flex" alignItems="center" p={2}>
@@ -348,14 +344,15 @@ const ChatArea: React.FC<ChatAreaProps> = ({ onBackClick }) => {
           flexDirection="column"
           flexGrow={1}
           sx={{
-            overflow: "hidden", // Disable default scrolling
+            overflow: "hidden",
+            position: "relative", // Make sure GIF search box stays within chat area
           }}
         >
           <Box
             sx={{
               flexGrow: 1,
               p: 2,
-              overflowY: "auto", // Only the chat area should scroll
+              overflowY: "auto",
               backgroundColor: "#f5f5f5",
             }}
           >
@@ -369,97 +366,120 @@ const ChatArea: React.FC<ChatAreaProps> = ({ onBackClick }) => {
                 <CircularProgress />
               </Box>
             ) : messages.length > 0 ? (
-              messages.map(({ text, senderId, imageUrls, files, gifUrl, timestamp }, index) => (
-                <Box
-                  key={`msg-${index}`}
-                  display="flex"
-                  justifyContent={
-                    senderId === currentUserId ? "flex-end" : "flex-start"
-                  }
-                  mb={2}
-                >
+              messages.map(
+                ({ text, senderId, imageUrls, files, gifUrl, timestamp }, index) => (
                   <Box
-                    sx={{
-                      backgroundColor:
-                        senderId === currentUserId
-                          ? theme.palette.primary.main
-                          : theme.palette.grey[300],
-                      color:
-                        senderId === currentUserId
-                          ? "#fff"
-                          : theme.palette.text.primary,
-                      padding: "10px",
-                      borderRadius: "10px",
-                      maxWidth: "60%",
-                      wordWrap: "break-word",
-                      whiteSpace: "pre-wrap",
-                    }}
+                    key={`msg-${index}`}
+                    display="flex"
+                    justifyContent={
+                      senderId === currentUserId ? "flex-end" : "flex-start"
+                    }
+                    mb={2}
                   >
-                    {text && (
-                      <Typography variant="body1" sx={{ mb: 1 }}>
-                        {text}
-                      </Typography>
-                    )}
-
-                    {gifUrl && (
-                      <img
-                        src={gifUrl}
-                        alt="gif"
-                        style={{
-                          width: "100%",
-                          height: "auto",
-                          objectFit: "cover",
-                          borderRadius: "8px",
-                        }}
-                      />
-                    )}
-
-                    {imageUrls.length > 0 && (
-                      imageUrls.map((url, index) => (
-                        <Box key={index} position="relative">
-                          <img
-                            src={url}
-                            alt={`img-${index}`}
-                            style={{
-                              width: "100%",
-                              height: "auto",
-                              objectFit: "cover",
-                              borderRadius: "8px",
-                            }}
-                          />
-                          <IconButton
-                            size="small"
-                            sx={{
-                              position: "absolute",
-                              top: 0,
-                              right: 0,
-                              color: "#fff",
-                              backgroundColor: "rgba(0, 0, 0, 0.5)",
-                            }}
-                            href={url}
-                            download={`image-${index}`}
-                          >
-                            <DownloadIcon />
-                          </IconButton>
-                        </Box>
-                      ))
-                    )}
-
-                   
-                    <Typography
-                      variant="caption"
-                      display="block"
-                      textAlign="right"
-                      sx={{ mt: 1, opacity: 0.7 }}
+                    <Box
+                      sx={{
+                        backgroundColor:
+                          senderId === currentUserId
+                            ? theme.palette.primary.main
+                            : theme.palette.grey[300],
+                        color:
+                          senderId === currentUserId
+                            ? "#fff"
+                            : theme.palette.text.primary,
+                        padding: "10px",
+                        borderRadius: "10px",
+                        maxWidth: "60%",
+                        wordWrap: "break-word",
+                        whiteSpace: "pre-wrap",
+                      }}
                     >
-                      {timestamp.toDate().toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </Typography>
+                      {text && (
+                        <Typography variant="body1" sx={{ mb: 1 }}>
+                          {text}
+                        </Typography>
+                      )}
+
+                      {gifUrl && (
+                        <img
+                          src={gifUrl}
+                          alt="gif"
+                          style={{
+                            width: "100%",
+                            height: "auto",
+                            objectFit: "cover",
+                            borderRadius: "8px",
+                          }}
+                        />
+                      )}
+
+                      {imageUrls.length > 0 &&
+                        imageUrls.map((url, index) => (
+                          <Box key={index} position="relative">
+                            <img
+                              src={url}
+                              alt={`img-${index}`}
+                              style={{
+                                width: "100%",
+                                height: "auto",
+                                objectFit: "cover",
+                                borderRadius: "8px",
+                              }}
+                            />
+                            <IconButton
+                              size="small"
+                              sx={{
+                                position: "absolute",
+                                top: 0,
+                                right: 0,
+                                color: "#fff",
+                                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                              }}
+                              href={url}
+                              download={`image-${index}`}
+                            >
+                              <DownloadIcon />
+                            </IconButton>
+                          </Box>
+                        ))}
+
+                      {/* Display non-image files like PDFs */}
+                      {files.length > 0 &&
+                        files.map((file, index) => (
+                          <Box key={index} display="flex" alignItems="center" sx={{ mt: 2 }}>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: "#000",
+                                textDecoration: "underline",
+                              }}
+                            >
+                              {file.name}
+                            </Typography>
+                            <IconButton
+                              href={file.url}
+                              download={file.name}
+                              sx={{ ml: 2 }}
+                            >
+                              <DownloadIcon />
+                            </IconButton>
+                          </Box>
+                        ))}
+
+                      <Typography
+                        variant="caption"
+                        display="block"
+                        textAlign="right"
+                        sx={{ mt: 1, opacity: 0.7 }}
+                      >
+                        {timestamp.toDate().toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </Typography>
+                    </Box>
                   </Box>
-                </Box>
-              ))
+                )
+              )
             ) : (
               <Box
                 display="flex"
@@ -476,13 +496,83 @@ const ChatArea: React.FC<ChatAreaProps> = ({ onBackClick }) => {
             <div ref={messagesEndRef} />
           </Box>
 
-          
+          {showGifSearch && (
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: "60px", // Adjust position within chat area
+                left: 0,
+                right: 0,
+                backgroundColor: "#fff",
+                padding: "10px",
+                borderRadius: "10px",
+                boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+                zIndex: 10, // Ensure the GIF search box is above the input
+                maxHeight: "40vh", // Ensure it doesn't exceed chat area height
+                overflowY: "auto", // Scroll when necessary
+              }}
+            >
+              <TextField
+                fullWidth
+                placeholder="Search GIFs"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={clearSearchTerm}>
+                        <ClearIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{ mb: 2 }}
+              />
+
+              <Grid container spacing={2}>
+                {gifResults.length > 0 ? (
+                  gifResults.map((gifUrl, index) => (
+                    <Grid
+                      item
+                      xs={6} // 2 GIFs per row on mobile
+                      sm={4} // 3 GIFs per row on tablet
+                      md={3} // 4 GIFs per row on desktop
+                      key={index}
+                    >
+                      <Box
+                        component="img"
+                        src={gifUrl}
+                        alt={`gif-${index}`}
+                        sx={{
+                          width: "100%",
+                          height: "auto",
+                          cursor: "pointer",
+                          borderRadius: "10px",
+                        }}
+                        onClick={() => handleGifSelect(gifUrl)}
+                      />
+                    </Grid>
+                  ))
+                ) : (
+                  <Box
+                    display="flex"
+                    justifyContent="center"
+                    alignItems="center"
+                    width="100%"
+                    height="100%" // Make it take up the available space
+                  >
+                    <Typography>No GIFs found</Typography>
+                  </Box>
+                )}
+              </Grid>
+            </Box>
+          )}
+
           <Box
             sx={{
               borderTop: "1px solid #ddd",
               padding: "10px",
               backgroundColor: "#fff",
-              
             }}
           >
             {filePreviews.length > 0 && (
@@ -492,11 +582,14 @@ const ChatArea: React.FC<ChatAreaProps> = ({ onBackClick }) => {
                 onRemove={removeFile}
               />
             )}
-            <Box display="flex" alignItems="center" 
-            sx={{
-              marginBottom: "4px",
-                  marginTop: "0 !important"
-            }}>
+            <Box
+              display="flex"
+              alignItems="center"
+              sx={{
+                marginBottom: "4px",
+                marginTop: "0 !important",
+              }}
+            >
               <IconButton component="label">
                 <AttachFileIcon />
                 <input type="file" hidden multiple onChange={handleFileChange} />
@@ -523,17 +616,22 @@ const ChatArea: React.FC<ChatAreaProps> = ({ onBackClick }) => {
                   outline: "none",
                   fontFamily: "inherit",
                   fontSize: "16px",
-                  
                 }}
               />
 
-              <IconButton color="primary" onClick={handleSend} disabled={isSending}>
+              <IconButton
+                color="primary"
+                onClick={handleSend}
+                disabled={isSending}
+              >
                 {isSending ? <CircularProgress size={24} /> : <SendIcon />}
               </IconButton>
 
               {!isMobile && (
                 <>
-                  <IconButton onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                  <IconButton
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  >
                     <EmojiEmotionsIcon />
                   </IconButton>
                   {showEmojiPicker && (
